@@ -1,0 +1,319 @@
+d:\Users\chen\Desktop\作品\index.html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陈君浩 · 作品集</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #fafafa;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+  header {
+    padding: 80px 5vw 40px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+  }
+  header p {
+    color: #888;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-wrap: wrap;
+  }
+  nav button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #666;
+    padding: 4px 8px;
+    letter-spacing: 1px;
+    transition: color .2s;
+    font-family: inherit;
+  }
+  nav button:hover, nav button.active { color: #1a1a1a; }
+  nav button.active { border-bottom: 2px solid #1a1a1a; }
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 5vw;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .card .thumb {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .card .thumb img, .card .thumb video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card .info {
+    padding: 12px 14px;
+  }
+  .card .info h3 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .card .info span {
+    font-size: 0.8rem;
+    color: #aaa;
+  }
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 5vh 5vw;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox .content {
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .lightbox img, .lightbox video {
+    max-width: 100%;
+    max-height: 85vh;
+    display: block;
+  }
+  .lightbox .title {
+    color: #fff;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+  .lightbox .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    line-height: 1;
+    padding: 0 8px;
+  }
+  .lightbox .close:hover { opacity: 0.7; }
+  .bili-thumb {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1f2430, #2d3440);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bili-thumb .play {
+    color: #fff;
+    font-size: 2rem;
+    opacity: 0.85;
+  }
+  .bili-wrap {
+    width: min(90vw, 960px);
+    aspect-ratio: 16/9;
+  }
+  .bili-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  footer {
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+    font-size: 0.85rem;
+    border-top: 1px solid #eee;
+  }
+  @media (max-width: 600px) {
+    header { padding: 50px 5vw 30px; }
+    header h1 { font-size: 1.5rem; letter-spacing: 2px; }
+    main { grid-template-columns: 1fr; padding: 24px 5vw; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>陈君浩 · 作品集</h1>
+    <p>地编展示 / 模型展示</p>
+  </header>
+
+  <nav id="filter">
+    <button class="active" data-cat="all">全部</button>
+    <button data-cat="scene">地编展示</button>
+    <button data-cat="model">模型展示</button>
+  </nav>
+
+  <main id="gallery"></main>
+
+  <div class="lightbox" id="lightbox">
+    <button class="close" id="closeBtn" aria-label="关闭">×</button>
+    <div class="content" id="lbContent"></div>
+  </div>
+
+  <footer>© 2026 陈君浩</footer>
+
+<script>
+  // 作品数据：cat 取值 scene（地编展示）/ model（模型展示）；type 取值 image / video / bili
+  const works = [
+    // —— 地编展示 ——
+    { cat: 'scene', type: 'bili', src: 'https://player.bilibili.com/player.html?isOutside=true&aid=117321058224165&bvid=BV1bLhb6CEuP&cid=42143057458&p=1', title: '春晓' },
+    { cat: 'scene', type: 'bili', src: 'https://player.bilibili.com/player.html?isOutside=true&aid=117321058223888&bvid=BV1bLhb6CE6N&cid=42142731953&p=1', title: '山花漫卷风' },
+    { cat: 'scene', type: 'bili', src: 'https://player.bilibili.com/player.html?isOutside=true&aid=117321024671323&bvid=BV1GShb6nEuz&cid=42142730733&p=1', title: '沧海遗珠' },
+    { cat: 'scene', type: 'bili', src: 'https://player.bilibili.com/player.html?isOutside=true&aid=117321041447420&bvid=BV1Vmhb6QENc&cid=42142925420&p=1', title: '枪战小游戏' },
+    // —— 模型展示 · 结界兽 ——
+    { cat: 'model', type: 'image', src: '模型展示/结界兽-透视图.png' },
+    { cat: 'model', type: 'image', src: '模型展示/结界兽-前视图.png' },
+    { cat: 'model', type: 'image', src: '模型展示/结界兽-侧视图.png' },
+    { cat: 'model', type: 'image', src: '模型展示/结界兽-后视图.png' },
+    // —— 模型展示 · 机器人 ——
+    { cat: 'model', type: 'image', src: '模型展示/机器人.png' },
+    { cat: 'model', type: 'image', src: '模型展示/机器人-正面.png' },
+    { cat: 'model', type: 'image', src: '模型展示/机器人-透视.jpg' },
+    { cat: 'model', type: 'image', src: '模型展示/机器人-前视图.jpg' },
+    { cat: 'model', type: 'image', src: '模型展示/机器人-后视图.jpg' },
+    { cat: 'model', type: 'image', src: '模型展示/机器人-左视图.jpg' },
+    { cat: 'model', type: 'image', src: '模型展示/机器人-顶视图.jpg' },
+    // —— 模型展示 · 场景与静物 ——
+    { cat: 'model', type: 'image', src: '模型展示/木屋.png' },
+    { cat: 'model', type: 'image', src: '模型展示/霓虹地铁.png' },
+    { cat: 'model', type: 'image', src: '模型展示/霓虹地铁外景.png' },
+    { cat: 'model', type: 'image', src: '模型展示/室内设计.png' },
+    { cat: 'model', type: 'image', src: '模型展示/萌三兄弟.png' },
+    { cat: 'model', type: 'image', src: '模型展示/椅子.png' },
+    { cat: 'model', type: 'image', src: '模型展示/水杯和书.png' },
+    { cat: 'model', type: 'image', src: '模型展示/火箭、摇杆.png' },
+    { cat: 'model', type: 'image', src: '模型展示/牙膏海报1.png' },
+    { cat: 'model', type: 'image', src: '模型展示/牙膏海报2.png' },
+    // —— 模型展示 · 视频 ——
+    { cat: 'model', type: 'video', src: '模型展示/小米音箱产品动画..mp4' },
+    { cat: 'model', type: 'bili', src: 'https://player.bilibili.com/player.html?isOutside=true&aid=117321041512537&bvid=BV1Ymhb6QEhK&cid=42142860875&p=1', title: '笔记本宣传动画' }
+  ];
+
+  const catName = { all: '全部', scene: '地编展示', model: '模型展示' };
+  const gallery = document.getElementById('gallery');
+  const lightbox = document.getElementById('lightbox');
+  const lbContent = document.getElementById('lbContent');
+
+  // 从文件路径自动生成标题：取文件名、去扩展名、去学号前缀
+  function getTitle(src) {
+    let name = src.split('/').pop().replace(/\.[^.]+$/, '').replace(/\.+$/, '').split('?')[0];
+    name = name.replace(/^20231076108-陈君浩-?/, '');
+    return name || '动画作品';
+  }
+
+  function render(cat) {
+    gallery.innerHTML = '';
+    works.filter(w => cat === 'all' || w.cat === cat).forEach(w => {
+      const title = w.title || getTitle(w.src);
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+      if (w.type === 'image') {
+        thumb.innerHTML = '<img src="' + encodeURI(w.src) + '" loading="lazy" alt="' + title + '">';
+      } else if (w.type === 'bili') {
+        thumb.innerHTML = '<div class="bili-thumb"><span class="play">▶</span></div>';
+      } else {
+        // #t=0.1 让视频缩略图显示第 0.1 秒的画面
+        thumb.innerHTML = '<video src="' + encodeURI(w.src) + '#t=0.1" muted preload="metadata" playsinline></video>';
+      }
+
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.innerHTML = '<h3>' + title + '</h3><span>' + catName[w.cat] + '</span>';
+
+      card.appendChild(thumb);
+      card.appendChild(info);
+      card.addEventListener('click', () => openLightbox(w));
+      gallery.appendChild(card);
+    });
+  }
+
+  function openLightbox(w) {
+    const title = w.title || getTitle(w.src);
+    const src = encodeURI(w.src);
+    if (w.type === 'image') {
+      lbContent.innerHTML = '<img src="' + src + '" alt="' + title + '"><div class="title">' + title + '</div>';
+    } else if (w.type === 'bili') {
+      lbContent.innerHTML = '<div class="bili-wrap"><iframe src="' + w.src + '" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="title">' + title + '</div>';
+    } else {
+      lbContent.innerHTML = '<video src="' + src + '" controls autoplay playsinline></video><div class="title">' + title + '</div>';
+    }
+    lightbox.classList.add('active');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    lbContent.innerHTML = ''; // 停止视频播放
+  }
+
+  document.getElementById('closeBtn').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox();
+  });
+
+  document.querySelectorAll('#filter button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#filter button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render(btn.dataset.cat);
+    });
+  });
+
+  render('all');
+</script>
+</body>
+</html>
